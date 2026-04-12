@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Plan;
 use App\Enums\UserRole;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
@@ -12,11 +13,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Cashier\Billable;
 
 class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use Billable, HasFactory, Notifiable;
 
     protected $fillable = [
         'name',
@@ -63,5 +65,29 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
     public function provider(): BelongsTo
     {
         return $this->belongsTo(User::class, 'provider_id');
+    }
+
+    public function currentPlan(): Plan
+    {
+        if ($this->subscribedToPrice(config('services.stripe.price_enterprise'))) {
+            return Plan::Enterprise;
+        }
+
+        if ($this->subscribedToPrice(config('services.stripe.price_pro'))) {
+            return Plan::Pro;
+        }
+
+        return Plan::Free;
+    }
+
+    public function canCreateCase(): bool
+    {
+        $limit = $this->currentPlan()->caseLimit();
+
+        if ($limit === null) {
+            return true;
+        }
+
+        return CaseRecord::where('provider_id', $this->id)->count() < $limit;
     }
 }

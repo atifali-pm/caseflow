@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Pages\Auth\ProviderRegistration;
+use Filament\Navigation\MenuItem;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -31,6 +32,16 @@ class AdminPanelProvider extends PanelProvider
             ->registration(ProviderRegistration::class)
             ->passwordReset()
             ->profile()
+            ->userMenuItems([
+                MenuItem::make()
+                    ->label('Pricing')
+                    ->url(fn () => route('pricing'))
+                    ->icon('heroicon-o-currency-dollar'),
+                MenuItem::make()
+                    ->label('Billing')
+                    ->url(fn () => route('billing-portal'))
+                    ->icon('heroicon-o-credit-card'),
+            ])
             ->colors([
                 'primary' => Color::Amber,
             ])
