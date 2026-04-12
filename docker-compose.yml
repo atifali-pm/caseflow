@@ -23,7 +23,7 @@ services:
     container_name: caseflow-postgres
     restart: unless-stopped
     ports:
-      - "5432:5432"
+      - "5434:5432"
     environment:
       POSTGRES_DB: caseflow
       POSTGRES_USER: caseflow
