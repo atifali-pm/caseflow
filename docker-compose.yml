@@ -1,0 +1,46 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: caseflow-app
+    restart: unless-stopped
+    ports:
+      - "8010:8000"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+    networks:
+      - caseflow
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: caseflow-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: caseflow
+      POSTGRES_USER: caseflow
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U caseflow"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - caseflow
+
+volumes:
+  pgdata:
+
+networks:
+  caseflow:
+    driver: bridge
