@@ -1,0 +1,18 @@
+<?php
+
+namespace App\Filament\Resources\CaseResource\Pages;
+
+use App\Filament\Resources\CaseResource;
+use Filament\Resources\Pages\CreateRecord;
+
+class CreateCase extends CreateRecord
+{
+    protected static string $resource = CaseResource::class;
+
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        $data['provider_id'] = auth()->id();
+
+        return $data;
+    }
+}
