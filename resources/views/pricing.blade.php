@@ -13,6 +13,12 @@
             <p class="mt-4 text-lg text-gray-600">Choose the plan that fits your practice</p>
         </div>
 
+        @if (session('status'))
+            <div class="max-w-2xl mx-auto mb-8 p-4 bg-amber-50 border border-amber-200 rounded-lg text-center">
+                <p class="text-sm text-amber-800">{{ session('status') }}</p>
+            </div>
+        @endif
+
         <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             @foreach ($plans as $plan)
                 <div class="bg-white rounded-2xl shadow-sm border {{ $plan === \App\Enums\Plan::Pro ? 'border-amber-500 ring-2 ring-amber-500' : 'border-gray-200' }} p-8 flex flex-col">

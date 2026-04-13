@@ -38,6 +38,13 @@ class SubscriptionController extends Controller
 
     public function billingPortal(Request $request)
     {
-        return $request->user()->redirectToBillingPortal(route('pricing'));
+        $user = $request->user();
+
+        if (! $user->hasStripeId()) {
+            return redirect()->route('pricing')
+                ->with('status', 'Subscribe to a plan to access the billing portal.');
+        }
+
+        return $user->redirectToBillingPortal(route('pricing'));
     }
 }
