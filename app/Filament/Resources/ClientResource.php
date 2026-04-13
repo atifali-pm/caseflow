@@ -5,11 +5,14 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\ClientResource\Pages;
 use App\Filament\Resources\ClientResource\RelationManagers;
 use App\Models\Client;
+use App\Notifications\ClientPortalInvitation;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Str;
 
 class ClientResource extends Resource
 {
@@ -73,6 +76,21 @@ class ClientResource extends Resource
             ->filters([])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\Action::make('invite')
+                    ->label(fn (Client $record) => $record->user_id ? 'Registered' : 'Invite to Portal')
+                    ->icon('heroicon-o-paper-airplane')
+                    ->color('success')
+                    ->disabled(fn (Client $record) => $record->user_id !== null)
+                    ->action(function (Client $record) {
+                        $record->update(['invitation_token' => Str::random(48)]);
+                        $record->notify(new ClientPortalInvitation($record));
+
+                        Notification::make()
+                            ->success()
+                            ->title('Invitation sent')
+                            ->body("An email with a registration link has been sent to {$record->email}.")
+                            ->send();
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

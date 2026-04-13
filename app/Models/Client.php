@@ -8,11 +8,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Notifications\Notifiable;
 
 class Client extends Model
 {
     /** @use HasFactory<ClientFactory> */
-    use HasFactory, ScopedByProvider;
+    use HasFactory, Notifiable, ScopedByProvider;
 
     protected $fillable = [
         'provider_id',
@@ -23,7 +24,13 @@ class Client extends Model
         'phone',
         'address',
         'notes',
+        'invitation_token',
     ];
+
+    public function routeNotificationForMail(): string
+    {
+        return $this->email;
+    }
 
     public function getFullNameAttribute(): string
     {

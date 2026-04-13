@@ -117,6 +117,7 @@ class CaseResource extends Resource
         return [
             RelationManagers\MilestonesRelationManager::class,
             RelationManagers\DocumentsRelationManager::class,
+            RelationManagers\MessagesRelationManager::class,
         ];
     }
 
