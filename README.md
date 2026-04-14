@@ -11,11 +11,37 @@ Built for law firms, consultants, coaches, and anyone who manages cases for clie
 ### Provider — run your practice from one panel
 
 - **Filament admin** with dashboard widgets, recent activity, and case statistics
-- **Cases** with stages (Intake → Active → Review → Closed) and statuses (Open, On Hold, Closed)
+- **Cases** with stages (Intake → Active → Review → Closed), statuses, and priorities (Low → Urgent)
 - **Clients** with full CRM details, notes, and linked cases
+- **Tasks** assignable to team members with due dates and status tracking
+- **Tags** with provider-scoped colors, attached to cases via polymorphic many-to-many
+- **Case notes** as a timestamped journal separate from the case description
+- **Activity log** automatically captures every create/update/delete with field-level changes
+- **Kanban board** showing cases as draggable cards grouped by stage
+- **Calendar view** for cases by due date, with month navigation
 - **Milestones, documents, and messages** as relation managers on each case
+- **Global search** (cmd+k) across cases and clients
+- **In-app + email notifications** for new messages, task assignments, and paid invoices
+- **Dark mode** built into the admin panel
 - **Multi-tenant by default** — every provider sees only their own data, automatically
 - **Plan-aware** — case creation is blocked when the provider hits their tier limit
+
+### Time tracking and invoicing
+
+- **Time entries** with billable hours, snapshotted hourly rates, and case linkage
+- **Expenses** tracked per case with billable flag
+- **Invoices** with auto-generated numbering (`INV-YYYY-NNNN`), line items, status tracking
+- **Invoice statuses**: Draft → Sent → Paid (or Overdue)
+- **PDF invoices** generated via DomPDF with a clean professional layout
+- **Reports dashboard** with revenue chart, cases-by-stage doughnut, billable hours stats, and invoice totals
+
+### REST API and webhooks
+
+- **Sanctum-authenticated API** for cases and clients (full CRUD)
+- **API token management** page in the admin for creating and revoking tokens
+- **Outgoing webhooks** with HMAC-SHA256 signed payloads
+- **Webhook events**: `case.created`, `case.updated`, `case.closed`, `invoice.paid`, `message.sent`, `task.completed`
+- **CSV export** of cases as a bulk action
 
 ### Client — a portal that respects them
 
@@ -163,12 +189,15 @@ Clients log in to a separate Livewire portal. They see their own cases, can uplo
 - [x] **Phase 2** — Livewire client portal with invitation-based onboarding
 - [x] **Phase 3** — Stripe Cashier billing with three tiers and plan enforcement
 - [x] **Phase 4** — Reproducible screenshot pipeline
-- [ ] **Phase 5** — Email notifications (case updates, new messages, milestone changes)
-- [ ] **Phase 6** — File previews in the portal (PDF, image inline)
-- [ ] **Phase 7** — Activity log per case (who did what, when)
-- [ ] **Phase 8** — Custom branding per provider (logo, colors)
-- [ ] **Phase 9** — Public client intake forms with Stripe-paid consultations
-- [ ] **Phase 10** — Webhook-out events for Zapier / Make integrations
+- [x] **Phase 5** — Productivity layer: tasks, tags, priority, case notes, kanban board, calendar view
+- [x] **Phase 6** — Activity log per case with auto-captured field-level changes
+- [x] **Phase 7** — Time tracking, expenses, invoices, and PDF invoice generation
+- [x] **Phase 8** — In-app and email notifications, global search, dark mode
+- [x] **Phase 9** — REST API (Sanctum), token management, reports dashboard with charts
+- [x] **Phase 10** — Outgoing webhooks with HMAC-signed payloads for Zapier / Make
+- [ ] **Phase 11** — File previews in the portal (PDF, image inline)
+- [ ] **Phase 12** — Custom branding per provider (logo, colors)
+- [ ] **Phase 13** — Public client intake forms with Stripe-paid consultations
 
 ---
 
@@ -223,6 +252,20 @@ The client portal is plain Livewire 3 with Tailwind. Filament's second-panel fea
 ### Plan enforcement at the model layer
 
 `User::canCreateCase()` checks the provider's current case count against their plan limit. Filament's `beforeCreate()` hook calls it. The check would still fire from a script or a tinker session — it's not a UI affordance, it's a domain rule.
+
+### Activity log without a package
+
+`LogsActivity` is a custom trait (~50 lines) that hooks into Eloquent's `created`, `updated`, `deleted` events and writes to the `activity_logs` table. Polymorphic, so any model that uses the trait gets a per-record activity feed via `$model->activities`.
+
+No Spatie dependency — the pattern is a few lines and the requirements are simple. The trait records the actor (`auth()->id()`), the event, and the dirty field changes for updates.
+
+### Webhooks signed like Stripe
+
+Outgoing webhooks send an `X-CaseFlow-Signature` header containing an HMAC-SHA256 of the body using each webhook's per-endpoint secret. Receivers verify by computing the same HMAC over the raw body — same pattern Stripe uses for incoming webhooks. The dispatcher catches and logs failures so a flaky downstream doesn't break the case-update flow.
+
+### REST API as a thin layer over the same models
+
+The API isn't a separate domain — it's the same Eloquent models, wrapped in `JsonResource` classes for output shaping, and gated by `auth:sanctum` plus the existing policies. The `ProviderScope` global scope still applies, so an API token issued by Sarah only sees Sarah's cases. No separate authorization logic to maintain.
 
 </details>
 
