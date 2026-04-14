@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\InvoicePdfController;
 use App\Http\Controllers\Portal\PortalAuthController;
 use App\Http\Controllers\Portal\PortalController;
 use App\Http\Controllers\SubscriptionController;
@@ -15,6 +16,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/subscribe/{plan}', [SubscriptionController::class, 'checkout'])->name('subscribe');
     Route::get('/subscribe/success', [SubscriptionController::class, 'success'])->name('subscribe.success');
     Route::get('/billing-portal', [SubscriptionController::class, 'billingPortal'])->name('billing-portal');
+    Route::get('/invoices/{invoice}/pdf', [InvoicePdfController::class, 'show'])->name('invoice.pdf');
 });
 
 Route::prefix('portal')->name('portal.')->group(function () {

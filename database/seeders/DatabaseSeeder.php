@@ -2,15 +2,20 @@
 
 namespace Database\Seeders;
 
+use App\Enums\InvoiceStatus;
 use App\Models\CaseMilestone;
 use App\Models\CaseNote;
 use App\Models\CaseRecord;
 use App\Models\Client;
 use App\Models\Document;
+use App\Models\Expense;
+use App\Models\Invoice;
+use App\Models\InvoiceLineItem;
 use App\Models\Message;
 use App\Models\Scopes\ProviderScope;
 use App\Models\Tag;
 use App\Models\Task;
+use App\Models\TimeEntry;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
@@ -24,9 +29,9 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $providers = User::factory()->provider()->count(3)->sequence(
-            ['name' => 'Sarah Johnson', 'email' => 'sarah@caseflow.test'],
-            ['name' => 'Michael Chen', 'email' => 'michael@caseflow.test'],
-            ['name' => 'Amy Rodriguez', 'email' => 'amy@caseflow.test'],
+            ['name' => 'Sarah Johnson', 'email' => 'sarah@caseflow.test', 'default_hourly_rate' => 200, 'currency' => 'USD'],
+            ['name' => 'Michael Chen', 'email' => 'michael@caseflow.test', 'default_hourly_rate' => 175, 'currency' => 'USD'],
+            ['name' => 'Amy Rodriguez', 'email' => 'amy@caseflow.test', 'default_hourly_rate' => 150, 'currency' => 'USD'],
         )->create();
 
         foreach ($providers as $provider) {
@@ -93,6 +98,50 @@ class DatabaseSeeder extends Seeder
                             'read_at' => fake()->optional(0.7)->dateTimeBetween('-1 month', 'now'),
                         ]);
                     }
+
+                    TimeEntry::factory()
+                        ->count(fake()->numberBetween(2, 8))
+                        ->create([
+                            'provider_id' => $provider->id,
+                            'case_record_id' => $case->id,
+                            'user_id' => $provider->id,
+                            'hourly_rate' => $provider->default_hourly_rate,
+                        ]);
+
+                    Expense::factory()
+                        ->count(fake()->numberBetween(0, 4))
+                        ->create([
+                            'provider_id' => $provider->id,
+                            'case_record_id' => $case->id,
+                            'user_id' => $provider->id,
+                        ]);
+                }
+
+                $invoiceCount = fake()->numberBetween(0, 3);
+                for ($n = 0; $n < $invoiceCount; $n++) {
+                    $invoice = Invoice::factory()->create([
+                        'provider_id' => $provider->id,
+                        'client_id' => $client->id,
+                    ]);
+
+                    $itemCount = fake()->numberBetween(1, 5);
+                    for ($k = 0; $k < $itemCount; $k++) {
+                        $qty = fake()->randomFloat(2, 0.5, 8);
+                        $rate = fake()->randomElement([100, 150, 200, 250]);
+                        InvoiceLineItem::create([
+                            'invoice_id' => $invoice->id,
+                            'type' => 'manual',
+                            'description' => fake()->randomElement([
+                                'Legal consultation', 'Document review', 'Court appearance',
+                                'Research and analysis', 'Drafting agreement', 'Client meeting',
+                            ]),
+                            'quantity' => $qty,
+                            'rate' => $rate,
+                            'amount' => round($qty * $rate, 2),
+                        ]);
+                    }
+
+                    $invoice->refresh()->recalculate();
                 }
             }
         }
