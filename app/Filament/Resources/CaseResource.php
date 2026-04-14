@@ -127,6 +127,32 @@ class CaseResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\BulkAction::make('export')
+                        ->label('Export to CSV')
+                        ->icon('heroicon-o-arrow-down-tray')
+                        ->action(function ($records) {
+                            $filename = 'cases-' . now()->format('Y-m-d-His') . '.csv';
+                            $headers = ['ID', 'Title', 'Client', 'Status', 'Stage', 'Priority', 'Opened', 'Due'];
+
+                            return response()->streamDownload(function () use ($records, $headers) {
+                                $out = fopen('php://output', 'w');
+                                fputcsv($out, $headers);
+                                foreach ($records as $record) {
+                                    fputcsv($out, [
+                                        $record->id,
+                                        $record->title,
+                                        $record->client?->full_name,
+                                        $record->status->label(),
+                                        $record->stage->label(),
+                                        $record->priority->label(),
+                                        $record->opened_at?->format('Y-m-d'),
+                                        $record->due_date?->format('Y-m-d'),
+                                    ]);
+                                }
+                                fclose($out);
+                            }, $filename);
+                        })
+                        ->deselectRecordsAfterCompletion(),
                 ]),
             ]);
     }

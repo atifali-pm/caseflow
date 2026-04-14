@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(docker exec:*)"
+      "Bash(docker exec:*)",
+      "Bash(curl -s -H \"Accept: application/json\" -H \"Authorization: Bearer 1|9mmnHNSBjaltVnx4cKEmGR0VcEqVdaSOrATHEjL4b4058e5b\" http://caseflow.local:8010/api/cases)"
     ]
   }
 }
