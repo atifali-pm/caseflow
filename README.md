@@ -151,35 +151,101 @@ Free, Pro, and Enterprise. Plan limits enforced at the model layer, not just hid
 
 ### Provider dashboard
 
-The Filament admin opens to a stat-heavy dashboard: total cases, open cases, this month's revenue, recent activity.
+The Filament admin opens to a stat-heavy dashboard: open cases, in-review cases, overdue cases, total clients.
 
 ![Provider dashboard](docs/screenshots/03-admin-dashboard.png)
 
 ### Cases list
 
-Every provider sees only their own cases. Sortable, searchable, filterable by stage and status.
+Every provider sees only their own cases. Sortable, searchable, filterable by stage, status, and priority. Tags visible inline.
 
 ![Cases list](docs/screenshots/04-cases-list.png)
 
-### Case detail with milestones, documents, and messages
+### Case detail — milestones, tasks, documents, notes, messages, activity
 
-Relation managers on a single page: track milestones, attach documents, message the client, all without leaving the case.
+One page, six relation managers. Track milestones, assign tasks, attach documents, write timestamped case notes, message the client, and watch an auto-captured activity log — all without leaving the case.
 
 ![Case detail](docs/screenshots/05-case-detail.png)
 
-### Clients list
+### Kanban board
 
-Full CRM-style client records. Linked back to cases. Provider-scoped.
+Cases grouped by stage (Intake → Active → Review → Closed). A direct alternative to the table view when you want to see the pipeline at a glance.
 
-![Clients list](docs/screenshots/06-clients-list.png)
+![Kanban board](docs/screenshots/06-kanban-board.png)
 
-### Client portal — the client's view
+### Calendar view
 
-Clients log in to a separate Livewire portal. They see their own cases, can upload documents, and message their provider. They never touch the admin panel.
+Monthly calendar of cases by due date. Jump straight to any case from the calendar cell.
 
-![Client portal](docs/screenshots/07-portal-dashboard.png)
+![Calendar view](docs/screenshots/07-calendar-view.png)
 
-> Screenshots are captured reproducibly by [`scripts/screenshots.mjs`](scripts/screenshots.mjs) — it drives headless Chrome through real provider and client flows against a freshly seeded database.
+### Tasks
+
+Dedicated task list across all cases. Filter by status, overdue, and assignee. One-click mark complete.
+
+![Tasks](docs/screenshots/08-tasks-list.png)
+
+### Time tracking
+
+Log billable hours with hourly rate snapshots. Roll entries into invoices in one click.
+
+![Time entries](docs/screenshots/09-time-entries.png)
+
+### Invoice detail
+
+Auto-numbered invoices (`INV-YYYY-NNNN`) with line items, live qty × rate calculation, and Mark Sent / Mark Paid / Download PDF actions.
+
+![Invoice detail](docs/screenshots/10-invoice-detail.png)
+
+### Invoice PDF
+
+Generated on demand with DomPDF. Branded header, parties block, line items, totals, notes.
+
+![Invoice PDF](docs/screenshots/11-invoice-pdf.png)
+
+### Reports dashboard
+
+Revenue by month (line chart), cases by stage (doughnut), paid/outstanding/draft stats, time logged this week.
+
+![Reports dashboard](docs/screenshots/12-reports-dashboard.png)
+
+### API tokens
+
+Self-service Sanctum token management. Copy-once token display with curl quickstart.
+
+![API tokens](docs/screenshots/13-api-tokens.png)
+
+### Webhooks
+
+Outgoing webhooks with HMAC-SHA256 signatures (Stripe-style). Pick which events you want per endpoint.
+
+![Webhooks](docs/screenshots/14-webhooks.png)
+
+### Notifications
+
+In-app database notifications with 30s polling. Triggered by new messages, task assignments, and invoice payments.
+
+![Notifications](docs/screenshots/15-notifications.png)
+
+### Global search
+
+`Cmd+K` / `Ctrl+K` across cases and clients, with resource-specific result rows.
+
+![Global search](docs/screenshots/16-global-search.png)
+
+### Dark mode
+
+Native Filament dark theme. One toggle in the user menu.
+
+![Dark mode](docs/screenshots/17-dark-mode.png)
+
+### Client portal
+
+Clients log in to a separate Livewire portal. They see their own cases, upload documents, and chat with their provider. They never touch the admin panel.
+
+![Client portal](docs/screenshots/18-client-portal.png)
+
+> Screenshots are captured reproducibly by [`scripts/screenshots.mjs`](scripts/screenshots.mjs) — it drives headless Chrome through real provider and client flows against a freshly seeded database, and uses `pdftoppm` to render the DomPDF output.
 
 ---
 
