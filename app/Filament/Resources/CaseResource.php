@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\CasePriority;
 use App\Enums\CaseStage;
 use App\Enums\CaseStatus;
 use App\Filament\Resources\CaseResource\Pages;
@@ -57,6 +58,15 @@ class CaseResource extends Resource
                             ->options(CaseStage::class)
                             ->default(CaseStage::Intake)
                             ->required(),
+                        Forms\Components\Select::make('priority')
+                            ->options(CasePriority::class)
+                            ->default(CasePriority::Medium)
+                            ->required(),
+                        Forms\Components\Select::make('tags')
+                            ->relationship('tags', 'name')
+                            ->multiple()
+                            ->preload()
+                            ->columnSpanFull(),
                     ]),
                 Forms\Components\Section::make('Dates')
                     ->columns(3)
@@ -87,6 +97,13 @@ class CaseResource extends Resource
                 Tables\Columns\TextColumn::make('stage')
                     ->badge()
                     ->color(fn (CaseStage $state) => $state->color()),
+                Tables\Columns\TextColumn::make('priority')
+                    ->badge()
+                    ->color(fn (CasePriority $state) => $state->color()),
+                Tables\Columns\TextColumn::make('tags.name')
+                    ->badge()
+                    ->color(fn ($state, $record) => $record->tags->firstWhere('name', $state)?->color ?? 'gray')
+                    ->separator(','),
                 Tables\Columns\TextColumn::make('opened_at')
                     ->dateTime()
                     ->sortable(),
@@ -100,6 +117,8 @@ class CaseResource extends Resource
                     ->options(CaseStatus::class),
                 Tables\Filters\SelectFilter::make('stage')
                     ->options(CaseStage::class),
+                Tables\Filters\SelectFilter::make('priority')
+                    ->options(CasePriority::class),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
@@ -115,9 +134,12 @@ class CaseResource extends Resource
     public static function getRelations(): array
     {
         return [
+            RelationManagers\TasksRelationManager::class,
             RelationManagers\MilestonesRelationManager::class,
             RelationManagers\DocumentsRelationManager::class,
+            RelationManagers\NotesRelationManager::class,
             RelationManagers\MessagesRelationManager::class,
+            RelationManagers\ActivityRelationManager::class,
         ];
     }
 

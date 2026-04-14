@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Enums\CasePriority;
 use App\Enums\CaseStage;
 use App\Enums\CaseStatus;
+use App\Models\Concerns\LogsActivity;
 use App\Models\Concerns\ScopedByProvider;
 use Database\Factories\CaseRecordFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,11 +13,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 class CaseRecord extends Model
 {
     /** @use HasFactory<CaseRecordFactory> */
-    use HasFactory, ScopedByProvider;
+    use HasFactory, LogsActivity, ScopedByProvider;
 
     protected $table = 'case_records';
 
@@ -26,6 +29,7 @@ class CaseRecord extends Model
         'description',
         'status',
         'stage',
+        'priority',
         'opened_at',
         'closed_at',
         'due_date',
@@ -36,6 +40,7 @@ class CaseRecord extends Model
         return [
             'status' => CaseStatus::class,
             'stage' => CaseStage::class,
+            'priority' => CasePriority::class,
             'opened_at' => 'datetime',
             'closed_at' => 'datetime',
             'due_date' => 'date',
@@ -65,5 +70,20 @@ class CaseRecord extends Model
     public function messages(): HasMany
     {
         return $this->hasMany(Message::class);
+    }
+
+    public function tasks(): HasMany
+    {
+        return $this->hasMany(Task::class);
+    }
+
+    public function notes(): HasMany
+    {
+        return $this->hasMany(CaseNote::class)->latest();
+    }
+
+    public function tags(): MorphToMany
+    {
+        return $this->morphToMany(Tag::class, 'taggable');
     }
 }

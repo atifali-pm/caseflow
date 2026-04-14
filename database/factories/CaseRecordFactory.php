@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\CasePriority;
 use App\Enums\CaseStage;
 use App\Enums\CaseStatus;
 use App\Models\CaseRecord;
@@ -29,6 +30,7 @@ class CaseRecordFactory extends Factory
             'description' => fake()->paragraph(),
             'status' => $status,
             'stage' => fake()->randomElement(CaseStage::cases()),
+            'priority' => fake()->randomElement(CasePriority::cases()),
             'opened_at' => $openedAt,
             'closed_at' => $status === CaseStatus::Closed ? fake()->dateTimeBetween($openedAt, 'now') : null,
             'due_date' => fake()->optional(0.7)->dateTimeBetween('now', '+3 months'),
