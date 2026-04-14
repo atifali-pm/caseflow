@@ -267,27 +267,6 @@ Clients log in to a separate Livewire portal. They see their own cases, upload d
 
 ---
 
-## Tech stack
-
-<details>
-<summary>Click to expand</summary>
-
-| Layer | Choice |
-|---|---|
-| Backend | Laravel 12, PHP 8.2 |
-| Admin panel | Filament 3 |
-| Client portal | Livewire 3, Tailwind CSS |
-| Database | PostgreSQL 16 |
-| Payments | Laravel Cashier (Stripe) |
-| Auth | Laravel session + role enum (admin / provider / client) |
-| Containerization | Docker + Docker Compose |
-
-No second framework for the client view. No tenancy plugin. No multi-database split. One Laravel app, one PostgreSQL schema, one mental model.
-
-</details>
-
----
-
 ## Architecture decisions
 
 <details>
