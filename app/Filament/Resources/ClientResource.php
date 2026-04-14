@@ -99,6 +99,24 @@ class ClientResource extends Resource
             ]);
     }
 
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['first_name', 'last_name', 'email'];
+    }
+
+    public static function getGlobalSearchResultTitle($record): string
+    {
+        return $record->full_name;
+    }
+
+    public static function getGlobalSearchResultDetails($record): array
+    {
+        return [
+            'Email' => $record->email,
+            'Cases' => $record->cases()->count(),
+        ];
+    }
+
     public static function getRelations(): array
     {
         return [

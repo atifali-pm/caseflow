@@ -32,6 +32,10 @@ class AdminPanelProvider extends PanelProvider
             ->registration(ProviderRegistration::class)
             ->passwordReset()
             ->profile()
+            ->databaseNotifications()
+            ->databaseNotificationsPolling('30s')
+            ->darkMode()
+            ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
             ->userMenuItems([
                 MenuItem::make()
                     ->label('Pricing')

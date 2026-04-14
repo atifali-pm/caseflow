@@ -131,6 +131,19 @@ class CaseResource extends Resource
             ]);
     }
 
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['title', 'description'];
+    }
+
+    public static function getGlobalSearchResultDetails($record): array
+    {
+        return [
+            'Client' => $record->client?->full_name ?? '-',
+            'Status' => $record->status->label(),
+        ];
+    }
+
     public static function getRelations(): array
     {
         return [
