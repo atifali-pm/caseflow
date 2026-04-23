@@ -25,6 +25,9 @@ RUN mkdir -p storage/framework/cache storage/framework/sessions storage/framewor
 
 RUN composer install --no-interaction --optimize-autoloader
 
+RUN chmod +x docker/start.sh
+
+# Render injects $PORT at runtime; locally docker-compose maps 8010:8000.
 EXPOSE 8000
 
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+CMD ["docker/start.sh"]

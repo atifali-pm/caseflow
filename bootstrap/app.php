@@ -15,6 +15,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => \App\Http\Middleware\EnsureUserRole::class,
         ]);
+
+        // Required when running behind Render/Fly/any PaaS proxy: trust the
+        // X-Forwarded-* headers so Laravel generates https:// URLs and reads
+        // the real client IP. Safe to leave enabled in local Docker too.
+        $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
